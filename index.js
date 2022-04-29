@@ -11,14 +11,15 @@ app.use(cors());
 app.use(express.json());
 
 
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vwx9p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = "mongodb+srv://GeniusCar:JdD9kdLDXtlam4zG@cluster0.wmrfn.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
 
 async function run() {
     try {
         await client.connect();
-        const serviceCollection = client.db('geniusCar').collection('service');
+        const serviceCollection = client.db('GeniusCar').collection('Service');
+        const orderCollection = client.db('GeniusCar').collection('Order');
 
         app.get('/service', async (req, res) => {
             const query = {};
@@ -48,6 +49,22 @@ async function run() {
             const result = await serviceCollection.deleteOne(query);
             res.send(result);
         });
+
+        // Order Collection Api
+
+        app.get('/orders', async(req, res) => {
+            const email = req.body.email;
+            const query = {email};
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
+
+        app.post('/order', async(req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
 
     }
     finally {
